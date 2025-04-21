@@ -1,0 +1,22 @@
+#!/bin/bash
+echo "📊 Etapa 2: Instalando InfluxDB e Grafana..."
+
+# InfluxDB
+curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+echo "deb https://repos.influxdata.com/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+sudo apt update
+sudo apt install -y influxdb
+sudo systemctl enable influxdb
+sudo systemctl start influxdb
+
+# Criar banco de dados
+influx -execute 'CREATE DATABASE energiaIFSUL'
+
+# Grafana
+sudo mkdir -p /etc/apt/keyrings
+wget -q -O - https://packages.grafana.com/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/grafana.gpg
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://packages.grafana.com/oss/deb stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
+sudo apt update
+sudo apt install -y grafana
+sudo systemctl enable grafana-server
+sudo systemctl start grafana-server
