@@ -1,0 +1,63 @@
+#include <ModbusMaster.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+// ==== CONFIGURAÇÕES MODBUS =====
+#define MAX485_DE_RE  4
+#define MODBUS_SERIAL Serial2
+#define SLAVE_ID 1
+
+ModbusMaster node;
+
+// ==== CONFIGURAÇÕES WIFI & MQTT ====
+const char* ssid = "SEU_WIFI";
+const char* password = "SENHA_WIFI";
+
+const char* mqtt_server = "IP_DO_SERVIDOR_UBUNTU";  // Ex: 192.168.1.100
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+// ==== FUNÇÃO PARA RS485 ====
+void preTransmission()  { digitalWrite(MAX485_DE_RE, 1); }
+void postTransmission() { digitalWrite(MAX485_DE_RE, 0); }
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(MAX485_DE_RE, OUTPUT);
+  digitalWrite(MAX485_DE_RE, 0);
+
+  MODBUS_SERIAL.begin(9600, SERIAL_8N1, 16, 17); // RX=16, TX=17
+
+  node.begin(SLAVE_ID, MODBUS_SERIAL);
+  node.preTransmission(preTransmission);
+  node.postTransmission(postTransmission);
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000); Serial.print(".");
+  }
+  client.setServer(mqtt_server, 1883);
+}
+
+void loop() {
+  if (!client.connected()) {
+    while (!client.connected()) {
+      client.connect("ESP32Client");
+    }
+  }
+  client.loop();
+
+  // ===== Lê potência ativa (40525, 2 registros)
+  uint8_t result = node.readInputRegisters(40525, 2);
+  if (result == node.ku8MBSuccess) {
+    uint32_t rawPower = (node.getResponseBuffer(0) << 16) | node.getResponseBuffer(1);
+    float potencia_kw = rawPower / 1000.0;
+    
+    // Publica via MQTT
+    char msg[50];
+    sprintf(msg, "{\"potencia_kw\": %.2f}", potencia_kw);
+    client.publish("inversor/huawei", msg);
+  }
+
+  delay(5000); // a cada 5 segundos
+}
