@@ -1,0 +1,12 @@
+#!/bin/bash
+echo "🔧 Etapa 1: Preparando sistema base..."
+
+# Atualização do sistema
+sudo apt update && sudo apt upgrade -y
+
+# Instalação de pacotes utilitários
+sudo apt install -y curl wget gnupg2 software-properties-common net-tools git unzip openssh-server ufw htop
+
+# Instalação do Node.js 18 + npm
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs build-essential
