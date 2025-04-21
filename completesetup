@@ -1,0 +1,92 @@
+#!/bin/bash
+echo "⏳ Iniciando instalação completa do ambiente de Supervisão e Energia..."
+
+# 1. Atualização do sistema
+sudo apt update && sudo apt upgrade -y
+
+# 2. Instalação de utilitários e dependências básicas
+sudo apt install -y curl wget gnupg2 software-properties-common net-tools git unzip openssh-server ufw htop
+
+# 3. Instalar Node.js + npm (v18.x)
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs build-essential
+
+# 4. Instalar Node-RED + PM2
+sudo npm install -g --unsafe-perm node-red
+sudo npm install -g pm2
+pm2 start `which node-red` -- -v
+pm2 save
+pm2 startup | tail -2 | head -1 | sed 's/^/sudo /' | bash
+
+# 5. Autenticação no Node-RED
+NR_CONFIG=~/.node-red/settings.js
+if grep -q "adminAuth" "$NR_CONFIG"; then
+  echo "🔐 Autenticação já configurada no Node-RED."
+else
+  echo "🔐 Configurando autenticação no Node-RED..."
+  PASSWORD_HASH=$(node -e "console.log(require('bcryptjs').hashSync('admin123', 8))")
+  sed -i "/^module.exports = {/a\ \ \ \ adminAuth: {\n\
+    \ \ \ \ \ \ type: \"credentials\",\n\
+    \ \ \ \ \ \ users: [{\n\
+    \ \ \ \ \ \ \ \ username: \"admin\",\n\
+    \ \ \ \ \ \ \ \ password: \"$PASSWORD_HASH\",\n\
+    \ \ \ \ \ \ \ \ permissions: \"*\"\n\
+    \ \ \ \ \ \ }]\n\
+  \ \ \ \ }," $NR_CONFIG
+fi
+
+# 6. InfluxDB
+curl -sL https://repos.influxdata.com/influxdb.key | sudo apt-key add -
+echo "deb https://repos.influxdata.com/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
+sudo apt update
+sudo apt install -y influxdb
+sudo systemctl enable influxdb
+sudo systemctl start influxdb
+
+# 7. Criar banco de dados InfluxDB para o projeto
+influx -execute 'CREATE DATABASE energiaIFSUL'
+
+# 8. Script de backup automático do InfluxDB
+echo "🧰 Criando script de backup automático do InfluxDB..."
+sudo tee /usr/local/bin/backup_influxdb.sh > /dev/null << 'EOF'
+#!/bin/bash
+BACKUP_DIR="/var/backups/influxdb"
+DATE=$(date +%F_%H-%M)
+mkdir -p $BACKUP_DIR
+influxd backup -portable $BACKUP_DIR/influxdb_backup_$DATE
+EOF
+sudo chmod +x /usr/local/bin/backup_influxdb.sh
+# Agendar backup diário às 03:00
+( sudo crontab -l 2>/dev/null; echo "0 3 * * * /usr/local/bin/backup_influxdb.sh" ) | sudo crontab -
+
+# 9. Instalar Grafana
+sudo mkdir -p /etc/apt/keyrings
+wget -q -O - https://packages.grafana.com/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/grafana.gpg
+echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://packages.grafana.com/oss/deb stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
+sudo apt update
+sudo apt install -y grafana
+sudo systemctl enable grafana-server
+sudo systemctl start grafana-server
+
+# 10. Instalar Mosquitto MQTT broker
+sudo apt install -y mosquitto mosquitto-clients
+sudo systemctl enable mosquitto
+sudo systemctl start mosquitto
+
+# 11. Firewall UFW (abrir portas necessárias)
+sudo ufw allow OpenSSH
+sudo ufw allow 1880    # Node-RED
+sudo ufw allow 3000    # Grafana
+sudo ufw allow 8086    # InfluxDB
+sudo ufw allow 1883    # MQTT
+sudo ufw --force enable
+
+# 12. Mensagem final
+echo ""
+echo "✅ Instalação COMPLETA concluída com sucesso!"
+echo "🔗 Node-RED:   http://<SEU_IP>:1880 (login: admin / senha: admin123)"
+echo "🔗 Grafana:    http://<SEU_IP>:3000 (login: admin / senha: admin)"
+echo "🔗 InfluxDB:   http://<SEU_IP>:8086"
+echo "🔗 MQTT ativo na porta 1883"
+echo "📦 Banco 'energiaIFSUL' criado no InfluxDB"
+echo "💾 Backups em: /var/backups/influxdb (diariamente às 03:00 via cron)"
