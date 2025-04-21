@@ -1,0 +1,521 @@
+[
+    {
+        "id": "b2c8c6e25961b599",
+        "type": "tab",
+        "label": "Fluxo 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "mqtt_broker",
+        "type": "mqtt-broker",
+        "name": "Broker Local",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "influx_config",
+        "type": "influxdb",
+        "hostname": "localhost",
+        "port": "8086",
+        "protocol": "http",
+        "database": "energiaIFSUL",
+        "name": "Conexão InfluxDB",
+        "usetls": false,
+        "influxdbVersion": "1.x",
+        "url": "",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "2ce7cc1317e99693",
+        "type": "ui_tab",
+        "name": "Sistema Solar",
+        "icon": "dashboard",
+        "order": 1
+    },
+    {
+        "id": "0e15736727a724f6",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "Node-RED Dashboard",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "false",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "20837deb0ba44639",
+        "type": "ui_group",
+        "name": "Inversor Huawei",
+        "tab": "2ce7cc1317e99693",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "8ab876b0dfec8a2c",
+        "type": "mqtt in",
+        "z": "b2c8c6e25961b599",
+        "name": "Potência",
+        "topic": "esp32/potencia",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "mqtt_broker",
+        "inputs": 0,
+        "x": 260,
+        "y": 560,
+        "wires": [
+            [
+                "77e4785c486f3b9a"
+            ]
+        ]
+    },
+    {
+        "id": "c93e92c4eec2d541",
+        "type": "mqtt in",
+        "z": "b2c8c6e25961b599",
+        "name": "Tensão",
+        "topic": "esp32/tensao",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "mqtt_broker",
+        "inputs": 0,
+        "x": 270,
+        "y": 640,
+        "wires": [
+            [
+                "2734d1c6dc606a6f"
+            ]
+        ]
+    },
+    {
+        "id": "2734d1c6dc606a6f",
+        "type": "function",
+        "z": "b2c8c6e25961b599",
+        "name": "Gravar Tensão",
+        "func": "msg.measurement = \"tensao\";\nmsg.payload = {\n  valor: msg.payload.valor\n};\nmsg.tags = {\n  origem: \"esp32\"\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 640,
+        "wires": [
+            [
+                "d2396d1bfb676970"
+            ]
+        ]
+    },
+    {
+        "id": "f053bc9ab0b6a47f",
+        "type": "mqtt in",
+        "z": "b2c8c6e25961b599",
+        "name": "Corrente",
+        "topic": "esp32/corrente",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "mqtt_broker",
+        "inputs": 0,
+        "x": 260,
+        "y": 720,
+        "wires": [
+            [
+                "d26368f74782568c"
+            ]
+        ]
+    },
+    {
+        "id": "d26368f74782568c",
+        "type": "function",
+        "z": "b2c8c6e25961b599",
+        "name": "Gravar Corrente",
+        "func": "msg.measurement = \"corrente\";\nmsg.payload = {\n  valor: msg.payload.valor\n};\nmsg.tags = {\n  origem: \"esp32\"\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 720,
+        "wires": [
+            [
+                "d2396d1bfb676970"
+            ]
+        ]
+    },
+    {
+        "id": "9757309eb4e16cea",
+        "type": "mqtt in",
+        "z": "b2c8c6e25961b599",
+        "name": "SOC Bateria",
+        "topic": "esp32/soc",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "mqtt_broker",
+        "inputs": 0,
+        "x": 250,
+        "y": 800,
+        "wires": [
+            [
+                "233989f9ad9c69ea"
+            ]
+        ]
+    },
+    {
+        "id": "233989f9ad9c69ea",
+        "type": "function",
+        "z": "b2c8c6e25961b599",
+        "name": "Gravar SOC",
+        "func": "msg.measurement = \"soc\";\nmsg.payload = {\n  valor: msg.payload.valor\n};\nmsg.tags = {\n  origem: \"esp32\"\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 800,
+        "wires": [
+            [
+                "d2396d1bfb676970"
+            ]
+        ]
+    },
+    {
+        "id": "a79c7be44e21b21d",
+        "type": "mqtt in",
+        "z": "b2c8c6e25961b599",
+        "name": "Energia Gerada",
+        "topic": "esp32/energia_gerada",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "mqtt_broker",
+        "inputs": 0,
+        "x": 240,
+        "y": 860,
+        "wires": [
+            [
+                "4a5daec6fdaa9f06",
+                "36b07eb042347a52"
+            ]
+        ]
+    },
+    {
+        "id": "4a5daec6fdaa9f06",
+        "type": "function",
+        "z": "b2c8c6e25961b599",
+        "name": "Gravar Energia Gerada",
+        "func": "msg.measurement = \"energia_gerada\";\nmsg.payload = {\n  valor: msg.payload.kwh\n};\nmsg.tags = {\n  origem: \"esp32\"\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 860,
+        "wires": [
+            [
+                "d2396d1bfb676970",
+                "901e1814db321687"
+            ]
+        ]
+    },
+    {
+        "id": "996a45d132d1ac35",
+        "type": "mqtt in",
+        "z": "b2c8c6e25961b599",
+        "name": "Energia Consumida",
+        "topic": "esp32/energia_consumida",
+        "qos": "2",
+        "datatype": "json",
+        "broker": "mqtt_broker",
+        "inputs": 0,
+        "x": 230,
+        "y": 920,
+        "wires": [
+            [
+                "e1a305c8e55839db"
+            ]
+        ]
+    },
+    {
+        "id": "e1a305c8e55839db",
+        "type": "function",
+        "z": "b2c8c6e25961b599",
+        "name": "Gravar Energia Consumida",
+        "func": "msg.measurement = \"energia_consumida\";\nmsg.payload = {\n  valor: msg.payload.kwh\n};\nmsg.tags = {\n  origem: \"esp32\"\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 920,
+        "wires": [
+            [
+                "d2396d1bfb676970",
+                "aad6c04c5c7100c5"
+            ]
+        ]
+    },
+    {
+        "id": "d2396d1bfb676970",
+        "type": "influxdb out",
+        "z": "b2c8c6e25961b599",
+        "influxdb": "influx_config",
+        "name": "Gravar no InfluxDB",
+        "measurement": "",
+        "x": 1050,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "3c4ce9d88758cb66",
+        "type": "inject",
+        "z": "b2c8c6e25961b599",
+        "name": "valor teste",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "{\"kwh\":1050}",
+        "payloadType": "json",
+        "x": 220,
+        "y": 500,
+        "wires": [
+            [
+                "4a5daec6fdaa9f06",
+                "e1a305c8e55839db"
+            ]
+        ]
+    },
+    {
+        "id": "aad6c04c5c7100c5",
+        "type": "debug",
+        "z": "b2c8c6e25961b599",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1050,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "814ff98633503e49",
+        "type": "ui_gauge",
+        "z": "b2c8c6e25961b599",
+        "name": "SOC da Bateria",
+        "group": "20837deb0ba44639",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "donut",
+        "title": "SOC (%)",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": 100,
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1040,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "342f096893568227",
+        "type": "ui_text",
+        "z": "b2c8c6e25961b599",
+        "group": "20837deb0ba44639",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Potência Atual",
+        "label": "Potência (W)",
+        "format": "{{msg.payload.potencia}}",
+        "layout": "row-spread",
+        "x": 1040,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "901e1814db321687",
+        "type": "debug",
+        "z": "b2c8c6e25961b599",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 770,
+        "y": 1020,
+        "wires": []
+    },
+    {
+        "id": "36b07eb042347a52",
+        "type": "debug",
+        "z": "b2c8c6e25961b599",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 510,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "77e4785c486f3b9a",
+        "type": "function",
+        "z": "b2c8c6e25961b599",
+        "name": "Gravar Potência",
+        "func": "msg.measurement = \"potencia\";\nmsg.payload = {\n  valor: msg.payload.valor\n};\nmsg.tags = {\n  origem: \"esp32\"\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 560,
+        "wires": [
+            [
+                "d2396d1bfb676970",
+                "814ff98633503e49",
+                "342f096893568227"
+            ]
+        ]
+    }
+]
