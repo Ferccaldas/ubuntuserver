@@ -1,0 +1,31 @@
+#!/bin/bash
+echo "🛡️ Etapa 4: Segurança, backups e finalização..."
+
+# Backup automático InfluxDB
+sudo tee /usr/local/bin/backup_influxdb.sh > /dev/null << 'EOF'
+#!/bin/bash
+BACKUP_DIR="/var/backups/influxdb"
+DATE=$(date +%F_%H-%M)
+mkdir -p $BACKUP_DIR
+influxd backup -portable $BACKUP_DIR/influxdb_backup_$DATE
+EOF
+sudo chmod +x /usr/local/bin/backup_influxdb.sh
+( sudo crontab -l 2>/dev/null; echo "0 3 * * * /usr/local/bin/backup_influxdb.sh" ) | sudo crontab -
+
+# Ativação do firewall
+sudo ufw allow OpenSSH
+sudo ufw allow 1880    # Node-RED
+sudo ufw allow 3000    # Grafana
+sudo ufw allow 8086    # InfluxDB
+sudo ufw allow 1883    # MQTT
+sudo ufw --force enable
+
+# Finalização
+echo ""
+echo "✅ Instalação finalizada com sucesso!"
+echo "🔗 Node-RED:   http://<SEU_IP>:1880 (admin/admin123)"
+echo "🔗 Grafana:    http://<SEU_IP>:3000 (admin/admin)"
+echo "🔗 InfluxDB:   http://<SEU_IP>:8086"
+echo "🔗 MQTT:       Porta 1883 ativa"
+echo "📦 Banco 'energiaIFSUL' criado"
+echo "💾 Backups diários em /var/backups/influxdb"
