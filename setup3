@@ -14,6 +14,13 @@ pkill -f "node-red"
 echo "🔧 Configurando uiHost para acesso externo..."
 sed -i "s|// uiHost:.*|uiHost: \"0.0.0.0\",|" ~/.node-red/settings.js
 
+# Verifica e instala os nós necessários
+echo "📦 Instalando paletes necessários (MQTT, InfluxDB, Dashboard)..."
+cd ~/.node-red
+npm install node-red-dashboard
+npm install node-red-node-mqtt
+npm install node-red-contrib-influxdb
+
 # Inicia o Node-RED com PM2 usando binding externo
 pm2 start bash --name node-red -- -c "HOST=0.0.0.0 node-red"
 pm2 save
@@ -44,3 +51,4 @@ echo ""
 echo "✅ Node-RED instalado e configurado com PM2 + acesso externo liberado (porta 1880)"
 echo "🔐 Login padrão: admin / admin123"
 echo "📡 MQTT Broker ativo na porta 1883"
+echo "📊 Paletes MQTT, Dashboard e InfluxDB instalados com sucesso"
