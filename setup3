@@ -4,9 +4,19 @@ echo "🔗 Etapa 3: Instalando Node-RED + Mosquitto..."
 # Node-RED e PM2
 sudo npm install -g --unsafe-perm node-red
 sudo npm install -g pm2
-pm2 start `which node-red` -- -v
+
+# Gera estrutura inicial do Node-RED
+node-red --help > /dev/null 2>&1 &
+sleep 5
+pkill -f "node-red"
+
+# Configura o arquivo settings.js para aceitar conexões externas
+echo "🔧 Configurando uiHost para acesso externo..."
+sed -i "s|// uiHost:.*|uiHost: \"0.0.0.0\",|" ~/.node-red/settings.js
+
+# Inicia o Node-RED com PM2 usando binding externo
+pm2 start bash --name node-red -- -c "HOST=0.0.0.0 node-red"
 pm2 save
-pm2 startup | tail -2 | head -1 | sed 's/^/sudo /' | bash
 
 # Autenticação Node-RED
 NR_CONFIG=~/.node-red/settings.js
@@ -29,3 +39,8 @@ fi
 sudo apt install -y mosquitto mosquitto-clients
 sudo systemctl enable mosquitto
 sudo systemctl start mosquitto
+
+echo ""
+echo "✅ Node-RED instalado e configurado com PM2 + acesso externo liberado (porta 1880)"
+echo "🔐 Login padrão: admin / admin123"
+echo "📡 MQTT Broker ativo na porta 1883"
