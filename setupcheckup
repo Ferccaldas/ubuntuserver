@@ -3,6 +3,8 @@
 echo "🔍 Iniciando verificação do servidor de gestão de energia..."
 echo "============================================================"
 
+read -p "Pressione ENTER para iniciar a verificação..."
+
 # 1. Verificar status dos serviços
 echo -e "\n📌 STATUS DOS SERVIÇOS:"
 for service in influxdb grafana-server mosquitto; do
@@ -10,41 +12,50 @@ for service in influxdb grafana-server mosquitto; do
     echo "✅ $service está ativo." || \
     echo "❌ $service não está ativo."
 done
+read -p "Pressione ENTER para continuar..."
 
+# 2. Verificar status do Node-RED via PM2
 echo -e "\n📌 STATUS DO Node-RED via PM2:"
 pm2 list | grep -q "node-red" && echo "✅ Node-RED rodando pelo PM2" || echo "❌ Node-RED não está rodando"
+read -p "Pressione ENTER para continuar..."
 
-# 2. Verificar se estão habilitados no boot
+# 3. Verificar se serviços estão habilitados no boot
 echo -e "\n📌 SERVIÇOS HABILITADOS NO BOOT:"
 for service in influxdb grafana-server mosquitto; do
   systemctl is-enabled --quiet $service && \
     echo "✅ $service está habilitado no boot." || \
     echo "❌ $service não está habilitado no boot."
 done
+read -p "Pressione ENTER para continuar..."
 
-# 3. Verificar banco de dados InfluxDB
+# 4. Verificar banco de dados InfluxDB
 echo -e "\n📌 BANCOS DE DADOS InfluxDB:"
 if command -v influx > /dev/null; then
   influx -execute 'SHOW DATABASES'
 else
   echo "❌ Cliente influxdb-client não instalado."
 fi
+read -p "Pressione ENTER para continuar..."
 
-# 4. Verificar cron do backup
+# 5. Verificar cron do backup
 echo -e "\n📌 BACKUP agendado no CRON:"
 sudo crontab -l | grep backup_influxdb.sh && echo "✅ Cron ativo para backup InfluxDB." || echo "❌ Cron de backup não encontrado."
+read -p "Pressione ENTER para continuar..."
 
-# 5. Verificar se o script de backup existe
+# 6. Verificar existência do script de backup
 echo -e "\n📌 Script de backup:"
 [ -f /usr/local/bin/backup_influxdb.sh ] && echo "✅ Script de backup existe." || echo "❌ Script de backup não localizado."
+read -p "Pressione ENTER para continuar..."
 
-# 6. Verificar regras do firewall
+# 7. Verificar regras do firewall
 echo -e "\n📌 FIREWALL UFW:"
 sudo ufw status verbose
+read -p "Pressione ENTER para continuar..."
 
-# 7. Verificar autenticação do Node-RED
+# 8. Verificar autenticação do Node-RED
 echo -e "\n📌 Autenticação Node-RED:"
 grep -q "adminAuth" ~/.node-red/settings.js && echo "✅ Autenticação está ativada no Node-RED." || echo "❌ Autenticação não encontrada no settings.js."
+read -p "Pressione ENTER para finalizar..."
 
 echo -e "\n✅ Verificação concluída."
 echo "============================================================"
