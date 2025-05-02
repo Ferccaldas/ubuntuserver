@@ -1,34 +1,42 @@
 #!/bin/bash
 
-echo "🔍 Iniciando verificação do servidor de gestão de energia..."
-echo "============================================================"
+# ============================================
+echo "🔧 Iniciando checkup completo do servidor..."
+echo "============================================"
+read -p "Pressione ENTER para iniciar..."
 
-read -p "Pressione ENTER para iniciar a verificação..."
-
-# 1. Verificar status dos serviços
-echo -e "\n📌 STATUS DOS SERVIÇOS:"
+# 1. STATUS DE SERVIÇOS ESSENCIAIS
+echo -e "\n📌 STATUS DOS SERVIÇOS ESSENCIAIS:"
 for service in influxdb grafana-server mosquitto; do
-  systemctl is-active --quiet $service && \
-    echo "✅ $service está ativo." || \
+  systemctl is-active --quiet $service && 
+    echo "✅ $service está ativo." || 
     echo "❌ $service não está ativo."
 done
 read -p "Pressione ENTER para continuar..."
 
-# 2. Verificar status do Node-RED via PM2
-echo -e "\n📌 STATUS DO Node-RED via PM2:"
-pm2 list | grep -q "node-red" && echo "✅ Node-RED rodando pelo PM2" || echo "❌ Node-RED não está rodando"
+# 2. STATUS DO NODE-RED
+echo -e "\n📌 STATUS DO NODE-RED via PM2:"
+pm2 list | grep -q "node-red" && echo "✅ Node-RED está rodando via PM2." || echo "❌ Node-RED não está rodando."
 read -p "Pressione ENTER para continuar..."
 
-# 3. Verificar se serviços estão habilitados no boot
+# 3. STATUS NO BOOT
 echo -e "\n📌 SERVIÇOS HABILITADOS NO BOOT:"
 for service in influxdb grafana-server mosquitto; do
-  systemctl is-enabled --quiet $service && \
-    echo "✅ $service está habilitado no boot." || \
+  systemctl is-enabled --quiet $service && 
+    echo "✅ $service está habilitado no boot." || 
     echo "❌ $service não está habilitado no boot."
 done
 read -p "Pressione ENTER para continuar..."
 
-# 4. Verificar banco de dados InfluxDB
+# 4. LOGS DO NODE-RED
+echo -e "\n📄 Últimas 10 linhas do log de saída do Node-RED:"
+tail -n 10 ~/.pm2/logs/node-red-out.log
+
+echo -e "\n⚠️ Últimas 10 linhas do log de erro do Node-RED:"
+tail -n 10 ~/.pm2/logs/node-red-error.log
+read -p "Pressione ENTER para continuar..."
+
+# 5. BANCOS INFLUXDB
 echo -e "\n📌 BANCOS DE DADOS InfluxDB:"
 if command -v influx > /dev/null; then
   influx -execute 'SHOW DATABASES'
@@ -37,25 +45,50 @@ else
 fi
 read -p "Pressione ENTER para continuar..."
 
-# 5. Verificar cron do backup
-echo -e "\n📌 BACKUP agendado no CRON:"
+# 6. BACKUP CRON
+echo -e "\n📌 BACKUP no CRON:"
 sudo crontab -l | grep backup_influxdb.sh && echo "✅ Cron ativo para backup InfluxDB." || echo "❌ Cron de backup não encontrado."
 read -p "Pressione ENTER para continuar..."
 
-# 6. Verificar existência do script de backup
+# 7. SCRIPT DE BACKUP
 echo -e "\n📌 Script de backup:"
 [ -f /usr/local/bin/backup_influxdb.sh ] && echo "✅ Script de backup existe." || echo "❌ Script de backup não localizado."
 read -p "Pressione ENTER para continuar..."
 
-# 7. Verificar regras do firewall
+# 8. FIREWALL UFW
 echo -e "\n📌 FIREWALL UFW:"
 sudo ufw status verbose
 read -p "Pressione ENTER para continuar..."
 
-# 8. Verificar autenticação do Node-RED
-echo -e "\n📌 Autenticação Node-RED:"
-grep -q "adminAuth" ~/.node-red/settings.js && echo "✅ Autenticação está ativada no Node-RED." || echo "❌ Autenticação não encontrada no settings.js."
+# 9. AUTENTICAÇÃO NODE-RED
+echo -e "\n📌 Autenticação no Node-RED:"
+grep -q "adminAuth" ~/.node-red/settings.js && echo "✅ Autenticação ativada." || echo "⚠️ Autenticação não configurada."
+read -p "Pressione ENTER para continuar..."
+
+# 10. USO DE RECURSOS
+echo -e "\n📊 USO DE RECURSOS DO SISTEMA:"
+free -h
+df -h | grep -E "^Filesystem|/dev"
+top -b -n1 | head -15
+read -p "Pressione ENTER para continuar..."
+
+# 11. CONECTIVIDADE DE REDE
+echo -e "\n🌐 TESTE DE CONECTIVIDADE:"
+ping -c 2 8.8.8.8 && echo "✅ Internet acessível." || echo "❌ Sem conexão com a internet."
+nslookup google.com >/dev/null && echo "✅ DNS funcionando." || echo "❌ Problema de DNS."
+read -p "Pressione ENTER para continuar..."
+
+# 12. ATUALIZAÇÕES
+echo -e "\n🔄 VERIFICAÇÃO DE ATUALIZAÇÕES:"
+sudo apt update > /dev/null
+apt list --upgradable
+[ -f /var/run/reboot-required ] && echo "⚠️ Reboot necessário." || echo "✅ Nenhum reboot pendente."
+read -p "Pressione ENTER para continuar..."
+
+# 13. LOGS DE ERROS
+echo -e "\n🛠️ ERROS RECENTES NO SISTEMA:"
+journalctl -p 3 -xb | tail -20
 read -p "Pressione ENTER para finalizar..."
 
-echo -e "\n✅ Verificação concluída."
-echo "============================================================"
+echo -e "\n✅ Checkup completo finalizado com sucesso!"
+echo "============================================="
