@@ -1,53 +1,54 @@
-Script setupcheckup – Checkup de Sistema para Ubuntu Server
-Este repositório contém o script setupcheckup, desenvolvido para realizar uma verificação inicial e automatizada em servidores rodando Ubuntu Server. Ele é ideal para administradores, estudantes ou profissionais que desejam garantir que o ambiente está configurado corretamente, com os principais pacotes e serviços funcionando como esperado.
+# ✅ Checkup Completo do Servidor Ubuntu – `setupcheckup`
 
-✅ O que este script faz?
-O setupcheckup realiza um checkup básico no sistema Ubuntu Server, podendo incluir:
+Este script realiza uma verificação completa e interativa de um servidor Ubuntu voltado para sistemas de gestão de energia com InfluxDB, Node-RED, Grafana, Mosquitto e outras ferramentas comuns em arquiteturas SCADA e IoT.
 
-Verificação de atualizações pendentes
+---
 
-Checagem de conectividade com a internet
+## 🛠️ O que é verificado?
 
-Validação de serviços essenciais (como SSH, UFW, etc.)
+O `setupcheckup` executa passo a passo (com pausa para o usuário a cada etapa):
 
-Exibição de informações de sistema (CPU, memória, espaço em disco)
+1. **Status de serviços**: InfluxDB, Grafana, Mosquitto
+2. **Status do Node-RED via PM2**
+3. **Serviços habilitados no boot**
+4. **Logs recentes do Node-RED (sem travar o terminal)**
+5. **Verificação de bancos de dados no InfluxDB**
+6. **Cron do script de backup do InfluxDB**
+7. **Existência do script de backup**
+8. **Regras e status do UFW (firewall)**
+9. **Autenticação no Node-RED**
+10. **Uso de memória, CPU e disco**
+11. **Testes de conectividade (ping, DNS)**
+12. **Verificação de atualizações e reinicialização pendente**
+13. **Erros recentes no sistema via journalctl**
 
-Obs.: O conteúdo do script pode ser personalizado conforme suas necessidades.
+---
 
-🧩 Como utilizar o script setupcheckup
-Siga o passo a passo abaixo para baixar, configurar e executar o script no seu Ubuntu Server:
+## 🚀 Como usar
 
-1. Acesse seu servidor via terminal (ou SSH)
+### 1. Clone ou copie o script:
+```bash
+wget https://raw.githubusercontent.com/Ferccaldas/ubuntuserver/main/setupcheckup_extendido.sh
+```
 
+### 2. Dê permissão de execução:
+```bash
+chmod +x setupcheckup_extendido.sh
+```
 
-ssh seu_usuario@ip_do_servidor
-2. Crie um diretório para armazenar o script (opcional)
+### 3. Execute o script:
+```bash
+./setupcheckup_extendido.sh
+```
 
+Cada etapa aguardará sua confirmação com **ENTER**, permitindo acompanhar a checagem do sistema com clareza e controle.
 
-mkdir -p ~/scripts
-cd ~/scripts
-3. Baixe o script do GitHub (use o link raw)
+---
 
+## 💡 Sugestão
+Você pode agendar esse script para execução periódica ou usá-lo após atualizações, implantação de sistemas SCADA, ou manutenção.
 
-wget https://raw.githubusercontent.com/Ferccaldas/ubuntuserver/main/setupcheckup
-4. Dê permissão de execução ao script
+---
 
-
-chmod +x setupcheckup
-5. Execute o script
-
-
-./setupcheckup
-Se necessário, execute como superusuário:
-
-
-sudo ./setupcheckup
-ℹ️ Dica de segurança
-Antes de executar o script, você pode visualizar seu conteúdo com:
-
-
-cat setupcheckup
-Assim, você entende tudo o que ele irá executar no seu sistema.
-
-👨‍💻 Licença e uso
-Este script é open-source e pode ser modificado livremente. Contribuições são bem-vindas!
+## 📄 Licença
+Este script é open-source e pode ser adaptado livremente. Sinta-se à vontade para contribuir ou sugerir melhorias!
