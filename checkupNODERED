@@ -1,0 +1,69 @@
+#!/bin/bash
+
+echo "🔧 Verificando o funcionamento do Node-RED..."
+echo "==============================================="
+
+read -p "Pressione ENTER para iniciar a verificação..."
+
+# 1. Verifica se Node-RED está instalado
+echo -e "\n📦 Verificando instalação do Node-RED..."
+if ! command -v node-red &> /dev/null; then
+  echo "❌ Node-RED não está instalado. Instalando agora..."
+  sudo npm install -g --unsafe-perm node-red
+else
+  echo "✅ Node-RED está instalado."
+fi
+read -p "Pressione ENTER para continuar..."
+
+# 2. Verifica se PM2 está instalado
+echo -e "\n📦 Verificando instalação do PM2..."
+if ! command -v pm2 &> /dev/null; then
+  echo "❌ PM2 não está instalado. Instalando agora..."
+  sudo npm install -g pm2
+else
+  echo "✅ PM2 está instalado."
+fi
+read -p "Pressione ENTER para continuar..."
+
+# 3. Verifica se Node-RED está rodando com PM2
+echo -e "\n🚀 Verificando se Node-RED está rodando via PM2..."
+pm2 list | grep -q "node-red"
+if [ $? -eq 0 ]; then
+  echo "✅ Node-RED está rodando via PM2."
+else
+  echo "⚠️ Node-RED não está rodando. Tentando iniciar..."
+  pm2 start $(which node-red) --name node-red
+  pm2 save
+fi
+read -p "Pressione ENTER para continuar..."
+
+# 4. Verifica logs de erro recentes do Node-RED
+echo -e "\n📋 Exibindo últimos logs do Node-RED:"
+pm2 logs node-red --lines 10
+read -p "Pressione ENTER para continuar..."
+
+# 5. Testa se o processo responde na porta padrão (1880)
+echo -e "\n🌐 Testando acesso à porta 1880 (Node-RED)..."
+sudo ss -tuln | grep ':1880' && \
+  echo "✅ Porta 1880 está ativa." || \
+  echo "❌ Porta 1880 não está ativa."
+read -p "Pressione ENTER para continuar..."
+
+# 6. Verifica autenticação (adminAuth) no settings.js
+echo -e "\n🔐 Verificando autenticação do Node-RED:"
+grep -q "adminAuth" ~/.node-red/settings.js && \
+  echo "✅ Autenticação está ativada no settings.js." || \
+  echo "⚠️ Autenticação não encontrada. Recomenda-se configurar."
+read -p "Pressione ENTER para continuar..."
+
+# 7. Reinicia Node-RED com PM2
+echo -e "\n♻️ Reiniciando Node-RED com PM2..."
+pm2 restart node-red
+read -p "Pressione ENTER para continuar..."
+
+# 8. Confirma status final
+echo -e "\n📈 Status final do processo Node-RED:"
+pm2 status node-red
+
+echo -e "\n✅ Verificação finalizada com sucesso."
+echo "==============================================="
