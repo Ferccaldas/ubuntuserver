@@ -18,43 +18,34 @@ Obs.: O conteúdo do script pode ser personalizado conforme suas necessidades.
 Siga o passo a passo abaixo para baixar, configurar e executar o script no seu Ubuntu Server:
 
 1. Acesse seu servidor via terminal (ou SSH)
-bash
-Copiar
-Editar
+
+
 ssh seu_usuario@ip_do_servidor
 2. Crie um diretório para armazenar o script (opcional)
-bash
-Copiar
-Editar
+
+
 mkdir -p ~/scripts
 cd ~/scripts
 3. Baixe o script do GitHub (use o link raw)
-bash
-Copiar
-Editar
+
+
 wget https://raw.githubusercontent.com/Ferccaldas/ubuntuserver/main/setupcheckup
 4. Dê permissão de execução ao script
-bash
-Copiar
-Editar
+
+
 chmod +x setupcheckup
 5. Execute o script
-bash
-Copiar
-Editar
+
+
 ./setupcheckup
 Se necessário, execute como superusuário:
 
-bash
-Copiar
-Editar
+
 sudo ./setupcheckup
 ℹ️ Dica de segurança
 Antes de executar o script, você pode visualizar seu conteúdo com:
 
-bash
-Copiar
-Editar
+
 cat setupcheckup
 Assim, você entende tudo o que ele irá executar no seu sistema.
 
