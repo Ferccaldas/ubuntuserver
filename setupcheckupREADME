@@ -1,0 +1,62 @@
+Script setupcheckup – Checkup de Sistema para Ubuntu Server
+Este repositório contém o script setupcheckup, desenvolvido para realizar uma verificação inicial e automatizada em servidores rodando Ubuntu Server. Ele é ideal para administradores, estudantes ou profissionais que desejam garantir que o ambiente está configurado corretamente, com os principais pacotes e serviços funcionando como esperado.
+
+✅ O que este script faz?
+O setupcheckup realiza um checkup básico no sistema Ubuntu Server, podendo incluir:
+
+Verificação de atualizações pendentes
+
+Checagem de conectividade com a internet
+
+Validação de serviços essenciais (como SSH, UFW, etc.)
+
+Exibição de informações de sistema (CPU, memória, espaço em disco)
+
+Obs.: O conteúdo do script pode ser personalizado conforme suas necessidades.
+
+🧩 Como utilizar o script setupcheckup
+Siga o passo a passo abaixo para baixar, configurar e executar o script no seu Ubuntu Server:
+
+1. Acesse seu servidor via terminal (ou SSH)
+bash
+Copiar
+Editar
+ssh seu_usuario@ip_do_servidor
+2. Crie um diretório para armazenar o script (opcional)
+bash
+Copiar
+Editar
+mkdir -p ~/scripts
+cd ~/scripts
+3. Baixe o script do GitHub (use o link raw)
+bash
+Copiar
+Editar
+wget https://raw.githubusercontent.com/Ferccaldas/ubuntuserver/main/setupcheckup
+4. Dê permissão de execução ao script
+bash
+Copiar
+Editar
+chmod +x setupcheckup
+5. Execute o script
+bash
+Copiar
+Editar
+./setupcheckup
+Se necessário, execute como superusuário:
+
+bash
+Copiar
+Editar
+sudo ./setupcheckup
+ℹ️ Dica de segurança
+Antes de executar o script, você pode visualizar seu conteúdo com:
+
+bash
+Copiar
+Editar
+cat setupcheckup
+Assim, você entende tudo o que ele irá executar no seu sistema.
+
+👨‍💻 Licença e uso
+Este script é open-source e pode ser modificado livremente. Contribuições são bem-vindas!
