@@ -39,7 +39,7 @@ read -p "Pressione ENTER para continuar..."
 
 # 4. Verifica logs de erro recentes do Node-RED
 echo -e "\n📋 Exibindo últimos logs do Node-RED:"
-pm2 logs node-red --lines 10
+pm2 logs node-red --lines 10 --nostream
 read -p "Pressione ENTER para continuar..."
 
 # 5. Testa se o processo responde na porta padrão (1880)
